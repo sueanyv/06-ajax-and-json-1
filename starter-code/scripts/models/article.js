@@ -1,4 +1,4 @@
-function Article (opts) {
+function Article(opts) {
   for (var keys in opts) {
     this[keys] = opts[keys];
   }
@@ -16,7 +16,7 @@ Article.allArticles = [];
 
 Article.prototype.toHtml = function(scriptTemplateId) {
   var template = Handlebars.compile($(scriptTemplateId).text());
-  this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
+  this.daysAgo = parseInt((new Date() - new Date(this.publishedOn)) / 60 / 60 / 24 / 1000);
   this.publishStatus = this.publishedOn ? 'published ' + this.daysAgo + ' days ago' : '(draft)';
   this.body = marked(this.body);
   return template(this);
@@ -31,22 +31,35 @@ Article.prototype.toHtml = function(scriptTemplateId) {
     It will take in our data, and process it via the Article constructor: */
 
 Article.loadAll = function(inputData) {
-  inputData.sort(function(a,b) {
-    return (new Date(b.publishedOn)) - (new Date(a.publishedOn));
-  })
-  .forEach(function(ele) {
-    Article.allArticles.push(new Article(ele));
-  });
+  inputData.sort(function(a, b) {
+    return (new Date(b.publishedOn)) - (new Date(a.publishedOn));})
+    .forEach(function(ele) {
+      Article.allArticles.push(new Article(ele));
+    });
 };
 
 /* This function below will retrieve the data from either a local or remote
  source, process it, then hand off control to the View: */
 Article.fetchAll = function() {
   if (localStorage.blogArticles) {
+    Article.loadAll(JSON.parse(localStorage.blogArticles));
+    articleView.renderIndexPage();
     /* When our data is already in localStorage:
     1. We can process and load it,
     2. Then we can render the index page.  */
   } else {
+    $.getJSON('data/blogArticles.json', function(data) {
+      localStorage.blogArticles = JSON.stringify(data);
+
+      Article.loadAll(localStorage.blogArticles);
+      articleView.renderIndexPage();
+
+
+
+
+
+    });
+    // localStorage.setItem('blogArticles', JSON.stringify(Article.allArticles));
     /* Without our localStorage in memory, we need to:
     1. Retrieve our JSON file with $.getJSON
       1.a Load our json data
