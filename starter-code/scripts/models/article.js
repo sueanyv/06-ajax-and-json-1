@@ -50,14 +50,8 @@ Article.fetchAll = function() {
   } else {
     $.getJSON('data/blogArticles.json', function(data) {
       localStorage.blogArticles = JSON.stringify(data);
-
-      Article.loadAll(localStorage.blogArticles);
+      Article.loadAll(JSON.parse(localStorage.blogArticles));
       articleView.renderIndexPage();
-
-
-
-
-
     });
     // localStorage.setItem('blogArticles', JSON.stringify(Article.allArticles));
     /* Without our localStorage in memory, we need to:
